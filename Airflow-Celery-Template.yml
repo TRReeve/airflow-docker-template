@@ -1,0 +1,100 @@
+version: '2.1'
+services:
+    redis:
+        image: 'redis:3.2.7'
+        command: redis-server --requirepass redispass
+    postgres:
+        image: postgres:9.6
+        environment:
+            - POSTGRES_USER=$airflowcreds
+            - POSTGRES_PASSWORD=$airflowcreds
+            - POSTGRES_DB=$airflowcreds
+        # Uncomment these lines to persist data on the local filesystem.
+            - PGDATA=/var/lib/postgresql/data/airflow/data
+        # volumes:
+            - ./pgdata:/var/lib/postgresql/data/airflow/data
+
+    webserver:
+        build: .
+        restart: always
+        depends_on:
+            - postgres
+            - redis
+        environment:
+            - LOAD_EX=n
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - POSTGRES_USER=$airflowcreds
+            - POSTGRES_PASSWORD=$airflowcreds
+            - POSTGRES_DB=$airflowcreds
+            - REDIS_PASSWORD=$rediscreds
+            - CONFIG_LOCATION=/usr/local/airflow/utilities/config.yml
+        volumes:
+            - $AIRFLOW_CONFIG:/usr/local/airflow/airflow.cfg
+            - $DAGS:/usr/local/airflow/dags
+            - $ETL_SCRIPTS:/usr/local/airflow/scripts
+            - $UTILITIES_AND_SECRETS:/usr/local/airflow/utilities
+            - $REQUIREMENTS_TEXT_FILE:/usr/local/airflow/requirements.txt
+        ports:
+            - "8000:8080"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
+
+    flower:
+        image: puckel/docker-airflow:1.10.2
+        restart: always
+        depends_on:
+            - redis
+        environment:
+            - EXECUTOR=Celery
+            - REDIS_PASSWORD=$rediscreds
+        ports:
+            - "5555:5555"
+        command: flower
+
+    scheduler:
+        build: .
+        restart: always
+        depends_on:
+            - webserver
+        volumes:
+            - $AIRFLOW_CONFIG:/usr/local/airflow/airflow.cfg
+            - $DAGS:/usr/local/airflow/dags
+            - $ETL_SCRIPTS:/usr/local/airflow/scripts
+            - $UTILITIES_AND_SECRETS:/usr/local/airflow/utilities
+            - $REQUIREMENTS_TEXT_FILE:/usr/local/airflow/requirements.txt
+        environment:
+            - LOAD_EX=n
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - POSTGRES_USER=$airflowcreds
+            - POSTGRES_PASSWORD=$airflowcreds
+            - POSTGRES_DB=$airflowcreds
+            - REDIS_PASSWORD=$rediscreds
+            - CONFIG_LOCATION=/usr/local/airflow/utilities/config.yml
+        command: scheduler
+
+    worker:
+        build: .
+        restart: always
+        depends_on:
+            - scheduler
+        volumes:
+            - $AIRFLOW_CONFIG:/usr/local/airflow/airflow.cfg
+            - $DAGS:/usr/local/airflow/dags
+            - $ETL_SCRIPTS:/usr/local/airflow/scripts
+            - $UTILITIES_AND_SECRETS:/usr/local/airflow/utilities
+            - $REQUIREMENTS_TEXT_FILE:/usr/local/airflow/requirements.txt
+        environment:
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - POSTGRES_USER=$airflowcreds
+            - POSTGRES_PASSWORD=$airflowcreds
+            - POSTGRES_DB=$airflowcreds
+            - REDIS_PASSWORD=$rediscreds
+            - CONFIG_LOCATION=/usr/local/airflow/utilities/config.yml
+        command: worker
