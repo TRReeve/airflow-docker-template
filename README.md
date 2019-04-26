@@ -52,3 +52,4 @@ Notes:
 - Be careful with what port your airflow webserver is running on versus where it is mapped to 
 - Running it with non-python scripts might take some fiddling with DockerFile & entrypoint.sh to install dependencies etc. But if 
 it can be triggered with bash then this can likely be done. 
+- scripts involving file manipulation can present rights issues with mounted volums, use unix permissions to overcome these. 
