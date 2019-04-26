@@ -17,7 +17,7 @@ Minimum configuration of the volume section should look somewhat like this at a 
             - $YOUR_DAG_DIRECTORY:/usr/local/airflow/dags
             - $YOUR_SCRIPTS_DIRECTORY:/usr/local/airflow/scripts
             - $YOUR_SECRETS_FILE:/usr/local/airflow/utilities/config.yml
-            - $YOUR_REQUIRMENTS.TXT_FILE:/usr/local/airflow/requirements.txt
+            - $YOUR_REQUIREMENTS.TXT_FILE:/usr/local/airflow/requirements.txt
 
 Notes:
 Your config file must be in a yml format.
