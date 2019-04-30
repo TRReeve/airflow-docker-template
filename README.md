@@ -26,7 +26,7 @@ boots it will run
 
     $(which pip) install --user -r ~/requirements.txt
     
-this will install all the packages in the requirements file so they're available to the workers. 
+this will install all the packages in the requirements file so they're available to the workers. Provisioning non-python depenedencies should be done within the entrypoint.sh file (purely a personal opinion). In similar circumstances I'd run scala projects by pushing them to a seperate docker and then initialising a kubernetesDAG for now but perhaps some sort of .jar downloading could be one approach. 
 
 **entrypoint.sh**
 
