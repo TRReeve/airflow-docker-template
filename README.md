@@ -1,6 +1,6 @@
 **README**
 
-In airflow Workers, Schedulers and Webservers seem to require the same scripts and dependencies present on all of them. 
+In airflow Workers, Schedulers and Webservers seem to require the same scripts and dependencies present on all of them for the async pattern to work. 
 This docker compose files lets you bring up an airflow instance using Celery workers by configuring the volumes in the 
 Airflow-Celery
 
