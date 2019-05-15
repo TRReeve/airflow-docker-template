@@ -12,6 +12,7 @@ TRY_LOOP="20"
 : "${POSTGRES_PASSWORD:="airflow"}"
 : "${POSTGRES_DB:="airflow"}"
 
+
 # Defaults and back-compat
 : "${AIRFLOW__CORE__FERNET_KEY:=${FERNET_KEY:=$(python -c "from cryptography.fernet import Fernet; FERNET_KEY = Fernet.generate_key().decode(); print(FERNET_KEY)")}}"
 : "${AIRFLOW__CORE__EXECUTOR:=${EXECUTOR:-Sequential}Executor}"
@@ -36,10 +37,6 @@ if [ -e "~/requirements.txt" ]; then
     $(which pip) install --user -r ~/requirements.txt
 fi
 
-# Starts GCP cloud Proxy
-cd /usr/local/airflow/utilities && bash /usr/local/airflow/utilities/connect_gcp_proxy.sh && cd
-
-echo $USER 
 # Installs required python packages.
 $(which pip) install --user -r ~/requirements.txt
 
